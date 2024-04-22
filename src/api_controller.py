@@ -34,16 +34,14 @@ class PatientAPIController:
 
     def create_patient(self):
         request_body = request.json
-        patient_id = self.patient_db.insert_patient(request_body)[0]
-        print(patient_id)
+        patient_id = self.patient_db.insert_patient(request_body)
+
+        sampledata = {"patient_id": str(patient_id[0])}
+        
         if patient_id:
-            response_body = {"patient_id": patient_id}
-            
-            status_code = 200
+            return jsonify(sampledata), 200
         else:
-            response_body = {"error": "Failed to create patient"}
-            status_code = 400
-        return jsonify(response_body), status_code
+            return jsonify({"error": "Failed to create patients"}), 400
 
         
     def get_patients(self):
@@ -55,10 +53,12 @@ class PatientAPIController:
         
     def get_patient(self, patient_id):
         patient = self.patient_db.select_patient(patient_id)
-        if patient:
-            return jsonify(patient), 200
+
+        if patient is None:
+            return jsonify({"error": "Patient not found"}), 404
         else:
-            return jsonify({"error": "Patient not found"}), 400
+            return jsonify(patient), 200
+
         
 
     def update_patient(self, patient_id):
